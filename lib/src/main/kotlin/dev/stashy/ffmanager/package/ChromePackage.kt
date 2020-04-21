@@ -8,12 +8,11 @@ import java.nio.file.Path
 class ChromePackage (
     val path: Path
 ) {
-    var meta: ChromePackageMeta? = null
+    private var metaPath = path.resolve("meta.json")
+    val meta: ChromePackageMeta? by lazy { Klaxon().parse<ChromePackageMeta>(metaPath.toFile()) }
 
     init {
         require(Files.isDirectory(path)) { "Package path must be a directory." }
-        val metaPath = path.resolve("meta.json")
-        meta = Klaxon().parse<ChromePackageMeta>(metaPath.toFile())
     }
 
     companion object {
