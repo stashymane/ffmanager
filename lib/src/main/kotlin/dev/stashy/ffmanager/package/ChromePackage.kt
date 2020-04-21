@@ -18,7 +18,7 @@ class ChromePackage (
     companion object {
         fun fromZip(path: Path): ChromePackage {
             require(path.endsWith(".zip")) { "Given path is not a zip file." }
-            val tempPath = Path.of(System.getProperty("java.io.tmpdir") + "/" + path.fileName)
+            val tempPath = Path.of(System.getProperty("java.io.tmpdir")).resolve(path.fileName)
 
             ZipFile(path.toFile()).extractAll(tempPath.toString())
             return ChromePackage(tempPath)
