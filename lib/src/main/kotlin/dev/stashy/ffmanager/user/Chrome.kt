@@ -10,11 +10,20 @@ class Chrome(var path: Path) {
         path = profile.root.resolve("chrome")
     }
 
+    private val installedPackages = mutableListOf<ChromePackage>()
+
     fun install(pkg: ChromePackage) {
-        Files.copy(pkg.path, path.resolve("/" + pkg.path.fileName))
+        val dest = path.resolve(pkg.path.fileName)
+        if (pkg.path.parent == Path.of(System.getProperty("java.io.tmpdir")))
+            Files.move(pkg.path, dest)
+        else
+            Files.copy(pkg.path, dest)
+
     }
 
     fun uninstall(pkg: ChromePackage) {
-        Files.delete(pkg.path)
+        if (installedPackages.contains(pkg)) {
+            Files.delete(pkg.path)
+        }
     }
 }
