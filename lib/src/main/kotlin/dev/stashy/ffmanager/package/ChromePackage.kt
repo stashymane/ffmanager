@@ -27,4 +27,4 @@ class ChromePackage (
     }
 }
 
-data class ChromePackageMeta(val id: String, val name: String?, val description: String?, val version: String?, val compatible: List<String>?)
+data class ChromePackageMeta(val name: String, val description: String?, val version: String?, val compatible: List<String>?)
