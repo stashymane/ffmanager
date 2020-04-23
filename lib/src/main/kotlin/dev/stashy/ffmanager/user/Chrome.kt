@@ -6,9 +6,7 @@ import java.nio.file.Path
 
 class Chrome(var path: Path) {
 
-    constructor(profile: Profile) {
-        path = profile.root.resolve("chrome")
-    }
+    constructor(profile: Profile): this(profile.root.resolve("chrome"))
 
     private val installedPackages = mutableListOf<ChromePackage>()
 
