@@ -6,6 +6,7 @@ import java.io.File
 import java.io.FilenameFilter
 import java.lang.IllegalStateException
 import java.nio.file.Files
+import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.util.stream.Collectors
 
@@ -24,12 +25,12 @@ class Profile(val root: Path) {
             }.collect(Collectors.toList())
         }
 
+        fun getAll(): List<Profile> {
+            return getAll(Path.of(AppDirsFactory.getInstance().getUserDataDir("Firefox", null, "Mozilla", true)).resolve("Profiles"))
+        }
+
         val default: Profile by lazy {
-            val profiles = Path.of(AppDirsFactory.getInstance().getUserDataDir("Firefox", null, "Mozilla", true)).resolve("Profiles")
-            val path = profiles.toFile().listFiles { file: File, _: String -> file.isDirectory }?.filter {
-                it.name.contains("default-release")
-            }?.reduce { _, _ -> throw IllegalStateException("Unable to find default profile.") }?.toPath()
-            Profile(path!!)
+            getAll().find { it.root.endsWith("default-release") } ?: throw NoSuchFileException("Default profile not found.")
         }
 
         fun isProfile(path: Path): Boolean {
