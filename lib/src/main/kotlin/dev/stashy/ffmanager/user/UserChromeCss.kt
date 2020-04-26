@@ -41,7 +41,8 @@ class UserChromeCss(var path: Path) {
             Files.createFile(path)
         Files.write(path,
             activePackagePaths.map {
-                "@import \"" + it.relativize(path.parent).toString() + "\";"
+                val relative = if (it.isAbsolute) it.relativize(path.parent) else it
+                "@import \"$relative\";"
             }.toList())
     }
 }
