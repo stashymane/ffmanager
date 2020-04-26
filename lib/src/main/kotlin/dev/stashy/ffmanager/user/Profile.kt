@@ -16,6 +16,7 @@ class Profile(val root: Path) {
     }
 
     val prefs: Prefs by lazy { Prefs(this) }
+    val chrome: Chrome by lazy { Chrome(this) }
 
     companion object {
         fun getAll(path: Path): List<Profile> {
