@@ -1,0 +1,6 @@
+@import "package1/test.css";
+@import "package2/test.css";
+
+#unrelated-properties {
+    display: none;
+}
