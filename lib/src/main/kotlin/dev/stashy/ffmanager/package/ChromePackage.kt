@@ -9,7 +9,11 @@ class ChromePackage (
     val path: Path
 ) {
     private var metaPath = path.resolve("meta.json")
-    val meta: ChromePackageMeta? by lazy { Klaxon().parse<ChromePackageMeta>(metaPath.toFile()) }
+    val meta: ChromePackageMeta? by lazy {
+        if (metaPath.toFile().exists()) Klaxon().parse<ChromePackageMeta>(metaPath.toFile())
+        else
+            ChromePackageMeta(path.fileName.toString())
+    }
 
     init {
         require(Files.isDirectory(path)) { "Package path must be a directory." }
