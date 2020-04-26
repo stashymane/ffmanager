@@ -21,6 +21,7 @@ class ChromePackage (
             val tempPath = Path.of(System.getProperty("java.io.tmpdir")).resolve(path.fileName)
 
             ZipFile(path.toFile()).extractAll(tempPath.toString())
+            tempPath.toFile().deleteOnExit()
             return ChromePackage(tempPath)
         }
     }
