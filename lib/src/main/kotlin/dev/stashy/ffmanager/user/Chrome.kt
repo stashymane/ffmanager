@@ -9,6 +9,7 @@ class Chrome(var path: Path) {
     constructor(profile: Profile): this(profile.root.resolve("chrome"))
 
     private val installedPackages = mutableListOf<ChromePackage>()
+    val userChrome: UserChromeCss by lazy { UserChromeCss(this) }
 
     fun install(pkg: ChromePackage) {
         val dest = path.resolve(pkg.path.fileName)
@@ -16,7 +17,6 @@ class Chrome(var path: Path) {
             Files.move(pkg.path, dest)
         else
             Files.copy(pkg.path, dest)
-
     }
 
     fun uninstall(pkg: ChromePackage) {
