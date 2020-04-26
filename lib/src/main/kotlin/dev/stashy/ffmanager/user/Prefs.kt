@@ -13,35 +13,34 @@ import java.util.stream.Collectors
 class Prefs(private val path: Path) : HashMap<String, Any>() {
     constructor(profile: Profile) : this(profile.root.resolve("prefs.js"))
 
-    private val pattern = Pattern.compile("^(?:user_pref\\((?:\"?(.+?)\"?), (?:\"?(.+?)\"?)\\);)")
+    private val regex = Regex("^(?:user_pref\\((?:\"?(.+?)\"?), (?:\"?(.+?)\"?)\\);)")
 
     init {
         require(Files.exists(path))
-        Files.newBufferedReader(path).use {
-            var line: String? = it.readLine()
-            var m: Matcher
-            while (line != null) {
-                m = pattern.matcher(line)
-                if (m.find())
-                    this[m.group(1)] = m.group(2)
-                line = it.readLine()
+        read()
+    }
+
+    fun read() {
+        Files.lines(path).forEach {
+            val m = regex.matchEntire(it)
+            if (m != null && m.groups.count() == 3) {
+                this[m.groupValues[1]] = m.groupValues[2]
             }
-            it.close()
         }
     }
 
     fun flush() {
         val writtenKeys = mutableListOf<String>()
-        val result = Files.lines(path).map { l ->
-            val m = pattern.matcher(l)
-            if (m.find() && containsKey(m.group(1))) {
-                writtenKeys.add(m.group(1))
-                parseUserPref(m.group(1), this[m.group(2)].toString())
+        val result = Files.lines(path).map {
+            val m = regex.matchEntire(it)
+            if (m != null && containsKey(m.groupValues[1])) {
+                writtenKeys.add(m.groupValues[1])
+                parseUserPref(m.groupValues[1], this[m.groupValues[2]].toString())
             } else
-                l
+                it
         }.collect(Collectors.toList())
         this.filter { !writtenKeys.contains(it.key) }.forEach { result.add(parseUserPref(it.key, it.value.toString())) }
-        Files.write(path, result)
+        Files.write(path, result) //TODO allow removal
     }
 
     private fun parseUserPref(key: String, value: String): String {
