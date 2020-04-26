@@ -1,2 +1,3 @@
 rootProject.name = 'ffmanager'
 include 'lib'
+include 'cli'
