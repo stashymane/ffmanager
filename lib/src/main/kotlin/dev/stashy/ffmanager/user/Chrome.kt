@@ -6,22 +6,28 @@ import java.nio.file.Path
 
 class Chrome(var path: Path) {
 
-    constructor(profile: Profile): this(profile.root.resolve("chrome"))
+    constructor(profile: Profile) : this(profile.root.resolve("chrome"))
 
-    private val installedPackages = mutableListOf<ChromePackage>()
     val userChrome: UserChromeCss by lazy { UserChromeCss(this) }
 
+    private val installedPackages = mutableListOf<ChromePackage>()
+
+    fun enable(pkg: ChromePackage) {
+
+    }
+
+    fun disable(pkg: ChromePackage) {
+
+    }
+
     fun install(pkg: ChromePackage) {
-        val dest = path.resolve(pkg.path.fileName)
-        if (pkg.path.parent == Path.of(System.getProperty("java.io.tmpdir")))
-            Files.move(pkg.path, dest)
-        else
-            Files.copy(pkg.path, dest)
+        pkg.path.let {
+            require(it != null && Files.isDirectory(it)) { "Package path must be a directory." }
+            Files.copy(it, path.resolve(it.fileName))
+        }
     }
 
     fun uninstall(pkg: ChromePackage) {
-        if (installedPackages.contains(pkg)) {
-            Files.delete(pkg.path)
-        }
+        installedPackages.find { it == pkg }.let { Files.delete(it?.path!!) }
     }
 }
