@@ -1,34 +1,47 @@
 package dev.stashy.ffmanager.`package`
 
+import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import com.github.zafarkhaja.semver.Version
 import net.lingala.zip4j.ZipFile
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 
-class ChromePackage (
-    val path: Path
+data class ChromePackage(
+    val id: String,
+    @Json(ignored = true)
+    var path: Path? = null,
+    val name: String? = null,
+    val description: String? = null,
+    val version: Version? = null,
+    val compatible: List<Version> = listOf(),
+    val updateUrl: URL? = null
 ) {
-    private var metaPath = path.resolve("meta.json")
-    val meta: ChromePackageMeta? by lazy {
-        if (metaPath.toFile().exists()) Klaxon().parse<ChromePackageMeta>(metaPath.toFile())
-        else
-            ChromePackageMeta(path.fileName.toString())
-    }
-
-    init {
-        require(Files.isDirectory(path)) { "Package path must be a directory." }
-    }
 
     companion object {
-        fun fromZip(path: Path): ChromePackage {
+        fun fromPath(path: Path): ChromePackage {
+            require(Files.isDirectory(path)) { "Package path must be a directory." }
+            var p = Klaxon().parse<ChromePackage>(path.resolve("meta.json").toFile())
+            if (p != null)
+                p.path = path
+            else
+                p = ChromePackage(path.fileName.toString(), path)
+            return p
+        }
+
+        fun fromZip(path: Path): ChromePackage? {
             require(path.endsWith(".zip")) { "Given path is not a zip file." }
             val tempPath = Path.of(System.getProperty("java.io.tmpdir")).resolve(path.fileName)
 
             ZipFile(path.toFile()).extractAll(tempPath.toString())
             tempPath.toFile().deleteOnExit()
-            return ChromePackage(tempPath)
+            return fromPath(tempPath)
         }
     }
-}
 
-data class ChromePackageMeta(val name: String, val description: String? = null, val version: String? = null, val compatible: List<String>? = null)
+    override fun equals(other: Any?)
+            = (other is ChromePackage)
+            && id == other.id
+    // ...
+}
