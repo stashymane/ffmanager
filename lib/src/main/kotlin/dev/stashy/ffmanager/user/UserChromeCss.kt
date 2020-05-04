@@ -6,9 +6,9 @@ import java.nio.file.Path
 import kotlin.streams.asSequence
 
 class UserChromeCss(var path: Path) {
-    val regex = Regex("@import [\"'](.*)[\"'];", RegexOption.IGNORE_CASE)
-
     constructor(chrome: Chrome): this(chrome.path.resolve("userChrome.css"))
+
+    val regex = Regex("@import [\"'](.*)[\"'];", RegexOption.IGNORE_CASE)
 
     init {
         read()
@@ -16,12 +16,12 @@ class UserChromeCss(var path: Path) {
 
     lateinit var activePackagePaths: MutableList<Path>
 
-    fun add(pkg: ChromePackage) {
-        activePackagePaths.add(pkg.path.relativize(path.parent))
+    fun add(path: Path) {
+        activePackagePaths.add(this.path.relativize(path.parent))
     }
 
-    fun remove(pkg: ChromePackage) {
-        activePackagePaths.remove(pkg.path.relativize(path.parent))
+    fun remove(path: Path) {
+        activePackagePaths.remove(this.path.relativize(path.parent))
     }
 
     fun read() {
