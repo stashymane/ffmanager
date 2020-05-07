@@ -47,4 +47,10 @@ data class ChromePackage(
             = (other is ChromePackage)
             && id == other.id
             && version == other.version
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (version?.hashCode() ?: 0)
+        return result
+    }
 }
