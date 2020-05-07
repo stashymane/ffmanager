@@ -28,6 +28,6 @@ class Chrome(var path: Path) {
     }
 
     fun uninstall(pkg: ChromePackage) {
-        installedPackages.find { it == pkg }.let { Files.delete(it?.path!!) }
+        installedPackages.first { it == pkg }.let { Files.delete(it.path!!) }
     }
 }
