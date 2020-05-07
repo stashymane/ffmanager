@@ -15,6 +15,7 @@ data class ChromePackage(
     val description: String? = null,
     val version: String? = null,
     val compatible: List<String> = listOf(),
+    val prefs: Map<String, Any> = mapOf(),
     val updateUrl: URL? = null
 ) {
 
