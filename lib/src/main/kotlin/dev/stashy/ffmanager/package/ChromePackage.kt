@@ -25,6 +25,8 @@ data class ChromePackage(
 
         fun from(dir: File): ChromePackage {
             require(dir.isDirectory) { "Package path must be a directory." }
+            if (!dir.resolve("meta.json").exists())
+                return ChromePackage(dir.name, dir.toPath())
             var p = Klaxon().parse<ChromePackage>(dir.resolve("meta.json")) //TODO converter for URL
             if (p != null)
                 p.path = dir.toPath()
