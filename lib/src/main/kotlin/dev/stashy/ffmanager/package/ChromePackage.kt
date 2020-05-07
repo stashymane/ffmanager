@@ -3,6 +3,7 @@ package dev.stashy.ffmanager.`package`
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import net.lingala.zip4j.ZipFile
+import java.io.File
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,13 +21,17 @@ data class ChromePackage(
 ) {
 
     companion object {
-        fun fromPath(path: Path): ChromePackage {
-            require(Files.isDirectory(path)) { "Package path must be a directory." }
-            var p = Klaxon().parse<ChromePackage>(path.resolve("meta.json").toFile()) //TODO converter for URL
+        fun from(path: Path): ChromePackage {
+            return from(path.toFile())
+        }
+
+        fun from(dir: File): ChromePackage {
+            require(dir.isDirectory) { "Package path must be a directory." }
+            var p = Klaxon().parse<ChromePackage>(dir.resolve("meta.json")) //TODO converter for URL
             if (p != null)
-                p.path = path
+                p.path = dir.toPath()
             else
-                p = ChromePackage(path.fileName.toString(), path)
+                p = ChromePackage(dir.name, dir.toPath())
             return p
         }
 
@@ -36,7 +41,7 @@ data class ChromePackage(
 
             ZipFile(path.toFile()).extractAll(tempPath.toString())
             tempPath.toFile().deleteOnExit()
-            return fromPath(tempPath)
+            return from(tempPath)
         }
     }
 
