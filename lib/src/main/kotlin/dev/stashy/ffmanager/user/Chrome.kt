@@ -23,7 +23,7 @@ class Chrome(var path: Path) {
     fun install(pkg: ChromePackage) {
         pkg.path.let {
             require(it != null && Files.isDirectory(it)) { "Package path must be a directory." }
-            Files.copy(it, path.resolve(it.fileName))
+            Files.copy(it, path.resolve(pkg.id))
         }
     }
 
