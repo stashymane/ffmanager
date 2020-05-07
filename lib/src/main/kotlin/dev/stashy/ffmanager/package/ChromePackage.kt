@@ -46,4 +46,5 @@ data class ChromePackage(
     override fun equals(other: Any?)
             = (other is ChromePackage)
             && id == other.id
+            && version == other.version
 }
