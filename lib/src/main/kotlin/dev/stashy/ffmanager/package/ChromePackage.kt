@@ -4,8 +4,6 @@ import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import net.lingala.zip4j.ZipFile
 import java.io.File
-import java.net.URL
-import java.nio.file.Files
 import java.nio.file.Path
 
 data class ChromePackage(
@@ -17,7 +15,7 @@ data class ChromePackage(
     val version: String? = null,
     val compatible: List<String> = listOf(),
     val prefs: Map<String, Any> = mapOf(),
-    val updateUrl: URL? = null
+    val updateUrl: String? = null
 ) {
 
     companion object {
