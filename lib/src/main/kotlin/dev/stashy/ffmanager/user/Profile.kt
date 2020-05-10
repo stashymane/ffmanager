@@ -31,7 +31,8 @@ class Profile(val root: Path) {
         }
 
         val default: Profile by lazy {
-            getAll().find { it.root.endsWith("default-release") } ?: throw NoSuchFileException("Default profile not found.")
+            getAll().find { it.root.toString().endsWith("default-release") }
+                ?: throw NoSuchFileException("Default profile not found.")
         }
 
         fun isProfile(path: Path): Boolean {
