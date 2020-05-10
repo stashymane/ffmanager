@@ -1,14 +1,13 @@
 package dev.stashy.ffmanager.user
 
-import net.harawata.appdirs.AppDirs
 import net.harawata.appdirs.AppDirsFactory
-import java.io.File
-import java.io.FilenameFilter
-import java.lang.IllegalStateException
+import java.lang.Exception
+import java.lang.IllegalArgumentException
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.util.stream.Collectors
+import kotlin.streams.asSequence
 
 class Profile(val root: Path) {
     init {
@@ -20,14 +19,20 @@ class Profile(val root: Path) {
 
     companion object {
         fun getAll(path: Path): List<Profile> {
-            val profiles: List<Profile> = mutableListOf()
-            return Files.list(path).map {
-                Profile(path)
-            }.collect(Collectors.toList())
+            return Files.list(path).asSequence().mapNotNull {
+                try {
+                    Profile(it)
+                } catch (e: IllegalArgumentException) {
+                    null
+                }
+            }.toList()
         }
 
         fun getAll(): List<Profile> {
-            return getAll(Path.of(AppDirsFactory.getInstance().getUserDataDir("Firefox", null, "Mozilla", true)).resolve("Profiles"))
+            return getAll(
+                Path.of(AppDirsFactory.getInstance().getUserDataDir("Firefox", null, "Mozilla", true))
+                    .resolve("Profiles")
+            )
         }
 
         val default: Profile by lazy {
