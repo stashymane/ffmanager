@@ -1,12 +1,11 @@
 package dev.stashy.ffmanager.user
 
-import dev.stashy.ffmanager.`package`.ChromePackage
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
 
-class UserChromeCss(var path: Path) {
-    constructor(chrome: Chrome): this(chrome.path.resolve("userChrome.css"))
+class UserChromeCss(var path: Path) : ArrayList<Path>() {
+    constructor(chrome: Chrome) : this(chrome.path.resolve("userChrome.css"))
 
     val regex = Regex("@import [\"'](.*)[\"'];", RegexOption.IGNORE_CASE)
 
@@ -14,35 +13,36 @@ class UserChromeCss(var path: Path) {
         read()
     }
 
-    lateinit var activePackagePaths: MutableList<Path>
-
-    fun add(path: Path) {
-        activePackagePaths.add(this.path.relativize(path.parent))
+    override fun add(element: Path): Boolean {
+        return super.add(relativize(element))
     }
 
-    fun remove(path: Path) {
-        activePackagePaths.remove(this.path.relativize(path.parent))
+    override fun remove(element: Path): Boolean {
+        return super.remove(relativize(element))
     }
 
     fun read() {
-        activePackagePaths =
-            if (Files.exists(path))
-                Files.lines(path).asSequence()
-                    .map { regex.matchEntire(it) }
-                    .filter { it != null && it.groups.count() == 2 }
-                    .map { Path.of(it!!.groups[1]!!.value) }
-                    .toMutableList()
-            else
-                mutableListOf()
+        clear()
+        if (Files.exists(path))
+            addAll(Files.lines(path).asSequence()
+                .map { regex.matchEntire(it) }
+                .filter { it != null && it.groups.count() == 2 }
+                .map { Path.of(it!!.groups[1]!!.value) })
     }
 
     fun flush() {
         if (!Files.exists(path))
             Files.createFile(path)
-        Files.write(path,
-            activePackagePaths.map {
-                val relative = if (it.isAbsolute) it.relativize(path.parent) else it
+        Files.write(
+            path,
+            map {
+                val relative = if (it.isAbsolute) relativize(it) else it
                 "@import \"$relative\";"
-            }.toList())
+            }
+        )
+    }
+
+    private fun relativize(path: Path) : Path {
+        return if (path.isAbsolute) this.path.parent.relativize(path) else path
     }
 }
