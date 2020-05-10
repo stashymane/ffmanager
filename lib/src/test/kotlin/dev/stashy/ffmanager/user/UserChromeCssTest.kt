@@ -9,12 +9,12 @@ import kotlin.test.assertTrue
 
 class UserChromeCssTest {
 
-    var chromePath = Path.of(Thread.currentThread().contextClassLoader.getResource("profile/chrome/userChrome.css")!!.toURI())
+    var chromePath: Path = Path.of(Thread.currentThread().contextClassLoader.getResource("profile/chrome/userChrome.css")!!.toURI())
 
     @Test
     fun testRead() {
         val chrome = UserChromeCss(chromePath)
-        chrome.activePackagePaths.apply {
+        chrome.apply {
             assertEquals(2, count())
             assertTrue(containsAll(listOf(Path.of("package1/test.css"), Path.of("package2/test.css"))))
         }
@@ -27,10 +27,10 @@ class UserChromeCssTest {
         val chrome = UserChromeCss(file.toPath())
         val testPaths = listOf("test1", "test2").map { Path.of(it) }.toList()
         chrome.apply {
-            activePackagePaths.addAll(testPaths)
+            addAll(testPaths)
             flush()
             read()
-            assertTrue(activePackagePaths.containsAll(testPaths))
+            assertTrue(containsAll(testPaths))
         }
     }
 }
