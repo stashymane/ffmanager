@@ -1,13 +1,8 @@
 package dev.stashy.ffmanager.user
 
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileReader
 import java.lang.Double.parseDouble
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 import java.util.stream.Collectors
 
 class Prefs(private val path: Path) : HashMap<String, Any>() {

@@ -5,6 +5,7 @@ import com.beust.klaxon.Klaxon
 import net.lingala.zip4j.ZipFile
 import java.io.File
 import java.nio.file.Path
+import java.nio.file.Paths
 
 data class ChromePackage(
     val id: String,
@@ -37,7 +38,7 @@ data class ChromePackage(
 
         fun fromZip(path: Path): ChromePackage? { //TODO read directly from zip
             require(path.endsWith(".zip")) { "Given path is not a zip file." }
-            val tempPath = Path.of(System.getProperty("java.io.tmpdir")).resolve(path.fileName)
+            val tempPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve(path.fileName)
 
             ZipFile(path.toFile()).extractAll(tempPath.toString())
             tempPath.toFile().deleteOnExit()

@@ -6,6 +6,7 @@ import java.lang.IllegalArgumentException
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.stream.Collectors
 import kotlin.streams.asSequence
 
@@ -30,7 +31,7 @@ class Profile(val root: Path) {
 
         fun getAll(): List<Profile> {
             return getAll(
-                Path.of(AppDirsFactory.getInstance().getUserDataDir("Firefox", null, "Mozilla", true))
+                Paths.get(AppDirsFactory.getInstance().getUserDataDir("Firefox", null, "Mozilla", true))
                     .resolve("Profiles")
             )
         }

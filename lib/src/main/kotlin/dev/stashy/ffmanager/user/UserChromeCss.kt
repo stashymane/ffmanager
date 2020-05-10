@@ -2,7 +2,9 @@ package dev.stashy.ffmanager.user
 
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.streams.asSequence
+import kotlin.streams.toList
 
 class UserChromeCss(var path: Path) : ArrayList<Path>() {
     constructor(chrome: Chrome) : this(chrome.path.resolve("userChrome.css"))
@@ -24,10 +26,10 @@ class UserChromeCss(var path: Path) : ArrayList<Path>() {
     fun read() {
         clear()
         if (Files.exists(path))
-            addAll(Files.lines(path).asSequence()
+            addAll(Files.lines(path)
                 .map { regex.matchEntire(it) }
                 .filter { it != null && it.groups.count() == 2 }
-                .map { Path.of(it!!.groups[1]!!.value) })
+                .map { Paths.get(it!!.groups[1]!!.value) }.toList())
     }
 
     fun flush() {
@@ -45,4 +47,6 @@ class UserChromeCss(var path: Path) : ArrayList<Path>() {
     private fun relativize(path: Path) : Path {
         return if (path.isAbsolute) this.path.parent.relativize(path) else path
     }
+
+    //TODO impl addall & etc. with relativizing
 }

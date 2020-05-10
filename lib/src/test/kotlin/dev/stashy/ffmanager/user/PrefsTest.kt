@@ -3,10 +3,11 @@ package dev.stashy.ffmanager.user
 import org.junit.Test
 import java.io.File
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.test.assertTrue
 
 class PrefsTest {
-    var prefsPath: Path = Path.of(Thread.currentThread().contextClassLoader.getResource("profile/prefs.js")!!.toURI())
+    var prefsPath: Path = Paths.get(Thread.currentThread().contextClassLoader.getResource("profile/prefs.js")!!.toURI())
 
     @Test
     fun testRead() {
