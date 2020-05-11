@@ -3,13 +3,16 @@ package dev.stashy.ffmanager.user
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.streams.asSequence
 import kotlin.streams.toList
 
-class UserChromeCss(var path: Path) : ArrayList<Path>() {
+class StyleManager(var path: Path) : ArrayList<Path>() {
     constructor(chrome: Chrome) : this(chrome.path.resolve("userChrome.css"))
 
     val regex = Regex("@import [\"'](.*)[\"'];", RegexOption.IGNORE_CASE)
+
+    companion object {
+        private val comments = listOf("/*", "  This file is managed by FFManager.", "  Any changes here will be overwritten.", "*/")
+    }
 
     init {
         read()
@@ -29,7 +32,8 @@ class UserChromeCss(var path: Path) : ArrayList<Path>() {
             addAll(Files.lines(path)
                 .map { regex.matchEntire(it) }
                 .filter { it != null && it.groups.count() == 2 }
-                .map { Paths.get(it!!.groups[1]!!.value) }.toList())
+                .map { Paths.get(it!!.groups[1]!!.value) }.toList()
+            )
     }
 
     fun flush() {
@@ -37,14 +41,15 @@ class UserChromeCss(var path: Path) : ArrayList<Path>() {
             Files.createFile(path)
         Files.write(
             path,
-            map {
-                val relative = if (it.isAbsolute) relativize(it) else it
-                "@import \"$relative\";"
-            }
+            comments.union(
+                map {
+                    val relative = if (it.isAbsolute) relativize(it) else it
+                    "@import \"$relative\";"
+                })
         )
     }
 
-    private fun relativize(path: Path) : Path {
+    private fun relativize(path: Path): Path {
         return if (path.isAbsolute) this.path.parent.relativize(path) else path
     }
 
