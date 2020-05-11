@@ -19,7 +19,13 @@ data class ChromePackage(
     val updateUrl: String? = null
 ) {
 
+    init {
+        require(idRegex.matches(id)) { "Package ID must be alphanumeric." }
+    }
+
     companion object {
+        val idRegex = Regex("^[a-zA-Z0-9]*\$")
+
         fun from(path: Path): ChromePackage {
             return from(path.toFile())
         }
@@ -28,11 +34,15 @@ data class ChromePackage(
             require(dir.isDirectory) { "Package path must be a directory." }
             if (!dir.resolve("meta.json").exists())
                 return ChromePackage(dir.name, dir.toPath())
-            var p = Klaxon().parse<ChromePackage>(dir.resolve("meta.json")) //TODO converter for URL
+            var p = Klaxon().parse<ChromePackage>(dir.resolve("meta.json"))
             if (p != null)
                 p.path = dir.toPath()
-            else
-                p = ChromePackage(dir.name, dir.toPath())
+            else {
+                p = if (idRegex.matches(dir.name))
+                    ChromePackage(dir.name, dir.toPath())
+                else
+                    ChromePackage(getRandomString(6))
+            }
             return p
         }
 
@@ -44,10 +54,16 @@ data class ChromePackage(
             tempPath.toFile().deleteOnExit()
             return from(tempPath)
         }
+
+        fun getRandomString(length: Int): String {
+            val charset = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+            return (1..length)
+                .map { charset.random() }
+                .joinToString("")
+        }
     }
 
-    override fun equals(other: Any?)
-            = (other is ChromePackage)
+    override fun equals(other: Any?) = (other is ChromePackage)
             && id == other.id
             && version == other.version
 
