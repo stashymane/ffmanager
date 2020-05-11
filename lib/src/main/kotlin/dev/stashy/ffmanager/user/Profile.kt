@@ -53,7 +53,7 @@ class Profile(val root: Path) {
     fun uninstall(pkg: ChromePackage) {
         findInstalledPackage(pkg.id).let {
             chrome.disable(it)
-            Files.delete(it.path!!)
+            it.path?.toFile()?.deleteRecursively()
         }
     }
 
