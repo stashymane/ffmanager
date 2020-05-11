@@ -41,14 +41,14 @@ class PackageTest {
 
     @Test
     fun testInstall() {
-        profile.chrome.install(pkg)
-        assert(profile.chrome.installedPackages.contains(pkg))
+        profile.install(pkg)
+        assert(profile.installedPackages.contains(pkg))
     }
 
     @Test
     fun testEnable() {
-        profile.chrome.install(pkg)
-        profile.chrome.enable(pkg)
-        assert(profile.chrome.enabledPackages.contains(pkg))
+        profile.install(pkg)
+        profile.enable(pkg)
+        assert(profile.enabledPackages.contains(pkg))
     }
 }
