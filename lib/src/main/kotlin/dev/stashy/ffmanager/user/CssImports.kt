@@ -44,7 +44,8 @@ class CssImports(var path: Path) : ArrayList<Path>() {
             comments.union(
                 map {
                     val relative = if (it.isAbsolute) relativize(it) else it
-                    "@import \"$relative\";"
+                    val str = relative.toString().replace('\\', '/')
+                    "@import \"$str\";"
                 })
         )
     }
