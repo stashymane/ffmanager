@@ -21,6 +21,7 @@ class Preferences(private val path: Path) : HashMap<String, Any>() {
 
     fun read() {
         clear()
+        this["toolkit.legacyUserProfileCustomizations.stylesheets"] = true
         if (Files.exists(path))
             Files.lines(path).forEach {
                 val m = regex.matchEntire(it)
