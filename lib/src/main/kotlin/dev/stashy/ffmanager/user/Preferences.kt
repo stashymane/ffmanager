@@ -20,6 +20,7 @@ class Preferences(private val path: Path) : HashMap<String, Any>() {
     }
 
     fun read() {
+        clear()
         if (Files.exists(path))
             Files.lines(path).forEach {
                 val m = regex.matchEntire(it)
@@ -27,8 +28,6 @@ class Preferences(private val path: Path) : HashMap<String, Any>() {
                     this[m.groupValues[1]] = m.groupValues[2]
                 }
             }
-        else
-            this.clear()
     }
 
     fun flush() {
