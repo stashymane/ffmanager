@@ -28,7 +28,7 @@ class Profile(val root: Path) {
         }
 
     fun findInstalledPackage(id: String): ChromePackage {
-        return installedPackages.find { it.id == id }?: throw IllegalArgumentException("Package $id is not installed.")
+        return installedPackages.find { it.id == id } ?: throw IllegalArgumentException("Package $id is not installed.")
     }
 
     fun enable(pkg: ChromePackage) {
@@ -37,6 +37,7 @@ class Profile(val root: Path) {
             it.prefs.forEach { pref ->
                 prefs[pref.key] = pref.value
             }
+            prefs.flush()
         }
     }
 
@@ -46,6 +47,7 @@ class Profile(val root: Path) {
             it.prefs.forEach { pref ->
                 prefs.remove(pref.key)
             }
+            prefs.flush()
         }
     }
 
