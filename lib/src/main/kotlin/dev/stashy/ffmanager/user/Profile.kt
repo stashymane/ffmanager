@@ -13,7 +13,7 @@ class Profile(val root: Path) {
         require(isProfile(root)) { "Provided path is not a profile." }
     }
 
-    val prefs: Prefs by lazy { Prefs(this) }
+    val prefs: Preferences by lazy { Preferences(this) }
     val chrome: Chrome by lazy { Chrome(this) }
 
     val installedPackages: List<ChromePackage>
@@ -34,12 +34,18 @@ class Profile(val root: Path) {
     fun enable(pkg: ChromePackage) {
         findInstalledPackage(pkg.id).let {
             chrome.enable(it)
+            it.prefs.forEach { pref ->
+                prefs[pref.key] = pref.value
+            }
         }
     }
 
     fun disable(pkg: ChromePackage) {
         findInstalledPackage(pkg.id).let {
             chrome.disable(it)
+            it.prefs.forEach { pref ->
+                prefs.remove(pref.key)
+            }
         }
     }
 
