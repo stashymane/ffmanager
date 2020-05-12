@@ -7,7 +7,7 @@ class Chrome(var path: Path) {
 
     constructor(profile: Profile) : this(profile.root.resolve("chrome"))
 
-    private val style: CssImports by lazy { CssImports(this) }
+    private val style: Styles by lazy { Styles(this) }
     //private val script: ScriptManager by lazy { ScriptManager(this) }
 
     val enabled: List<ChromePackage>
