@@ -23,12 +23,10 @@ class Preferences(private val path: Path) : HashMap<String, Any>() {
         clear()
         this["toolkit.legacyUserProfileCustomizations.stylesheets"] = true
         if (Files.exists(path))
-            Files.lines(path).forEach {
-                val m = regex.matchEntire(it)
-                if (m != null && m.groups.count() == 3) {
-                    this[m.groupValues[1]] = m.groupValues[2]
+            Files.lines(path).map { regex.matchEntire(it) }.filter { it != null && it.groups.count() == 3 }
+                .forEach {
+                    if (it != null) this[it.groupValues[1]] = it.groupValues[2]
                 }
-            }
     }
 
     fun flush() {
