@@ -1,95 +1,36 @@
 package dev.stashy.ffmanager.user
 
-import dev.stashy.ffmanager.`package`.ChromePackage
 import net.harawata.appdirs.AppDirsFactory
-import java.nio.file.Files
-import java.nio.file.NoSuchFileException
+import org.ini4j.Ini
+import org.ini4j.Wini
 import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.streams.asSequence
 
-class Profile(val root: Path) {
+class Profile(val path: Path, val name: String) {
+    val chrome = Chrome(this)
+
     init {
-        require(isProfile(root)) { "Provided path is not a profile." }
-    }
-
-    val prefs: Preferences by lazy { Preferences(this) }
-    val chrome: Chrome by lazy { Chrome(this) }
-
-    val installedPackages: List<ChromePackage>
-        get() {
-            return Files.list(chrome.path).asSequence()
-                .mapNotNull { if (Files.isDirectory(it)) ChromePackage.from(it) else null }.toList()
-        }
-
-    val enabledPackages: List<ChromePackage>
-        get() {
-            return chrome.enabled
-        }
-
-    fun findInstalledPackage(id: String): ChromePackage {
-        return installedPackages.find { it.id == id } ?: throw IllegalArgumentException("Package $id is not installed.")
-    }
-
-    fun enable(pkg: ChromePackage) {
-        findInstalledPackage(pkg.id).let {
-            chrome.enable(it)
-            it.prefs.forEach { pref ->
-                prefs[pref.key] = pref.value
-            }
-            prefs.flush()
-        }
-    }
-
-    fun disable(pkg: ChromePackage) {
-        findInstalledPackage(pkg.id).let {
-            chrome.disable(it)
-            it.prefs.forEach { pref ->
-                prefs.remove(pref.key)
-            }
-            prefs.flush()
-        }
-    }
-
-    fun install(pkg: ChromePackage) {
-        pkg.path.let {
-            require(it != null && Files.isDirectory(it)) { "Package path must be a directory." }
-            it.toFile().copyRecursively(chrome.path.resolve(pkg.id).toFile())
-        }
-    }
-
-    fun uninstall(pkg: ChromePackage) {
-        findInstalledPackage(pkg.id).let {
-            chrome.disable(it)
-            it.path?.toFile()?.deleteRecursively()
-        }
+        require(!path.isAbsolute)
     }
 
     companion object {
-        fun getAll(path: Path): List<Profile> {
-            return Files.list(path).asSequence().mapNotNull {
-                try {
-                    Profile(it)
-                } catch (e: IllegalArgumentException) {
-                    null
+        val data = Paths.get(AppDirsFactory.getInstance().getUserDataDir("Firefox", null, "Mozilla", true))
+        val ini: Ini by lazy { Wini(data.resolve("profiles.ini").toFile()) }
+
+        val all: List<Profile>
+            get() {
+                return ini.entries.filter {
+                    it.key.startsWith("Profile")
+                }.map {
+                    Profile(data.resolve(Paths.get(it.value["Path"]!!)), it.value["Name"]!!)
                 }
-            }.toList()
-        }
+            }
 
-        fun getAll(): List<Profile> {
-            return getAll(
-                Paths.get(AppDirsFactory.getInstance().getUserDataDir("Firefox", null, "Mozilla", true))
-                    .resolve("Profiles")
-            )
-        }
-
+        //TODO support multiple installs
+        //currently gets only first install from ini
         val default: Profile by lazy {
-            getAll().find { it.root.toString().endsWith("default-release") }
-                ?: throw NoSuchFileException("Default profile not found.")
-        }
-
-        fun isProfile(path: Path): Boolean {
-            return Files.isDirectory(path) && Files.exists(path.resolve("prefs.js"))
+            val dpath = ini[ini.keys.first()]!!["Default"]!!
+            all.first { it.path.endsWith(Paths.get(dpath)) }
         }
     }
 }

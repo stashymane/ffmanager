@@ -1,32 +1,59 @@
 package dev.stashy.ffmanager.user
 
-import dev.stashy.ffmanager.`package`.ChromePackage
+import dev.stashy.ffmanager.packages.FFPack
+import dev.stashy.ffmanager.packages.PackFiles
+import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.streams.toList
 
-class Chrome(var path: Path) {
+class Chrome(val path: Path) :
+    ArrayList<FFPack>() {
+    constructor(profile: Profile) : this(profile.path.resolve("meta.json"))
 
-    constructor(profile: Profile) : this(profile.root.resolve("chrome"))
+    val styles = ChromeStyles()
+    val scripts = ChromeScripts()
 
-    private val style: Styles by lazy { Styles(this) }
-    //private val script: ScriptManager by lazy { ScriptManager(this) }
-
-    val enabled: List<ChromePackage>
-    get() {
-        return style.mapNotNull { try { ChromePackage.from(path.resolve(it.parent)) } catch (e: Exception) { null } }
+    init {
+        if (!Files.exists(path))
+            Files.createDirectory(path)
+        reload()
     }
 
-    fun enable(pkg: ChromePackage) {
-        pkg.path?.let {
-            style.add(it.resolve("userChrome.css"))
-            style.flush()
-        }
+    override fun add(pack: FFPack): Boolean {
+        if (contains(pack))
+            throw AlreadyInstalledException()
+        if (pack !is PackFiles)
+            return false
+        val ipath = path.resolve(pack.id)
+        Files.copy(pack.path, ipath)
+        val installed = FFPack.from(ipath)
+        enable(installed)
+        return super.add(installed)
     }
 
-    fun disable(pkg: ChromePackage) {
-        pkg.path?.let {
-            style.remove(it.resolve("userChrome.css"))
-            style.flush()
-        }
+    override fun remove(pack: FFPack): Boolean {
+        if (!contains(pack)) return false
+        if (pack !is PackFiles)
+            return false
+        disable(pack)
+        Files.delete(pack.path)
+        return super.remove(pack)
     }
 
+    fun enable(pack: FFPack) {
+
+    }
+
+    fun disable(pack: FFPack) {
+
+    }
+
+    fun reload() {
+        clear()
+        addAll(Files.list(path).filter { Files.isDirectory(it) }.map {
+            FFPack.from(it)
+        }.toList())
+    }
 }
+
+class AlreadyInstalledException : Exception()
