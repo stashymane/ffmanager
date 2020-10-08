@@ -1,12 +1,10 @@
-package dev.stashy.ffmanager.ui
+package dev.stashy.ffmanager.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
-import dev.stashy.ffmanager.`package`.ChromePackage
-import dev.stashy.ffmanager.user.Profile
 
 fun main(args: Array<String>) {
     Program().main(args)
@@ -50,12 +48,12 @@ class Program : CliktCommand() {
                 this.name?.let { println("Name: $it") }
                 this.description?.let { println("Description: $it") }
                 this.version?.let { println("Version: $it") }
-                if (this.compatible.isNotEmpty()) println("Compatible with: " + this.compatible.joinToString { ", " })
+                if (this.compatible != null && this.compatible!!.isNotEmpty()) println("Compatible with: " + this.compatible?.joinToString { ", " })
             }
         }
 
         install.forEach {
-            profile.install(ChromePackage.from(it))
+            profile.install(LocalPackage.from(it))
         }
         uninstall.forEach { id ->
             profile.findInstalledPackage(id).let {

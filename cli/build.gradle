@@ -11,5 +11,5 @@ dependencies {
 }
 
 application {
-    mainClassName "dev.stashy.ffmanager.ui.ProgramKt"
+    mainClassName "dev.stashy.ffmanager.cli.ProgramKt"
 }

@@ -1,0 +1,15 @@
+plugins {
+    id 'application'
+}
+
+group rootProject.group + '.ui'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    implementation 'no.tornado:tornadofx:1.7.20'
+    implementation project(":lib")
+}
+
+application {
+    mainClassName "dev.stashy.ffmanager.ui.Main"
+}
