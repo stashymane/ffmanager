@@ -27,6 +27,15 @@ class Chrome(val path: Path) {
         return Files.list(path).anyMatch { it.fileName == p }
     }
 
+    fun getInstalled(id: String): Path? {
+        val p = Paths.get(id)
+        return Files.list(path).asSequence().find { it.fileName == p }
+    }
+
+    fun getInstalled(pack: FFPack): Path? {
+        return getInstalled(pack.id)
+    }
+
     fun install(pack: PackFiles) {
         if (isInstalled(pack))
             throw AlreadyInstalledException(pack)
