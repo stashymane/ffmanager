@@ -5,6 +5,10 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
+import dev.stashy.ffmanager.packages.FFPack
+import dev.stashy.ffmanager.packages.PackFiles
+import dev.stashy.ffmanager.packages.PackMeta
+import dev.stashy.ffmanager.user.Profile
 
 fun main(args: Array<String>) {
     Program().main(args)
@@ -36,40 +40,36 @@ class Program : CliktCommand() {
     )
 
     override fun run() {
-        val profile = if (profilePath == null) Profile.default else Profile(profilePath!!)
+        val profile = if (profilePath == null) Profile.default else Profile(profilePath!!, "profile")
         if (list) {
-            profile.installedPackages.forEach { println(it.id) }
+            profile.chrome.installed.forEach { println(it.id) }
         }
         about.forEach { id ->
-            val p = profile.installedPackages.find { pkg -> pkg.id == id }
+            val p = profile.chrome.installed.find { pkg -> pkg.id == id }
             p?.apply {
                 println("ID: " + this.id)
                 println("Installed: true")
-                this.name?.let { println("Name: $it") }
-                this.description?.let { println("Description: $it") }
-                this.version?.let { println("Version: $it") }
-                if (this.compatible != null && this.compatible!!.isNotEmpty()) println("Compatible with: " + this.compatible?.joinToString { ", " })
+                if (this is PackMeta) {
+                    this.name?.let { println("Name: $it") }
+                    this.description?.let { println("Description: $it") }
+                    this.version?.let { println("Version: $it") }
+                    if (this.compatible != null && this.compatible!!.isNotEmpty()) println("Compatible with: " + this.compatible?.joinToString { ", " })
+                }
             }
         }
 
         install.forEach {
-            profile.install(LocalPackage.from(it))
+            profile.chrome.install(FFPack.from(it) as PackFiles)
         }
         uninstall.forEach { id ->
-            profile.findInstalledPackage(id).let {
-                profile.uninstall(it)
-            }
+            profile.chrome.uninstall(id)
         }
 
         enable.forEach { id ->
-            profile.findInstalledPackage(id).let {
-                profile.enable(it)
-            }
+            profile.chrome.getInstalled(id)?.enable(profile) ?: println("Unable to find package $id.")
         }
         disable.forEach { id ->
-            profile.findInstalledPackage(id).let {
-                profile.disable(it)
-            }
+            profile.chrome.getInstalled(id)?.disable(profile) ?: println("Unable to find package $id.")
         }
     }
 
