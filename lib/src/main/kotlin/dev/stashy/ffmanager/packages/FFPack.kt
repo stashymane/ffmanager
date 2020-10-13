@@ -11,7 +11,9 @@ interface FFPack {
     val id: String
 
     companion object {
-        fun from(path: Path): FFPack {
+        fun from(path: Path): FFPack? {
+            if (!Files.isDirectory(path))
+                return null
             val metaPath = path.resolve("meta.json")
             return if (Files.exists(metaPath))
                 object : PackFiles, PackMeta, FFPack {
