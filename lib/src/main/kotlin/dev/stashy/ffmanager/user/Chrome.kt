@@ -39,7 +39,12 @@ class Chrome(val path: Path) {
     fun install(pack: PackFiles) {
         if (isInstalled(pack))
             throw AlreadyInstalledException(pack)
-        FFUtil.copyAll(pack.path, path.resolve(pack.id))
+        var copyFrom = pack.path
+        copyFrom.resolve("chrome").let {
+            if (Files.isDirectory(it))
+                copyFrom = it
+        }
+        FFUtil.copyAll(copyFrom, path.resolve(pack.id))
     }
 
     fun uninstall(id: String) {
