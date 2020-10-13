@@ -53,6 +53,15 @@ class Chrome(val path: Path) {
         uninstall(pack.id)
     }
 
+    fun enable(pack: FFPack) {
+        styles += pack
+        styles.save()
+    }
+
+    fun disable(pack: FFPack) {
+        styles -= pack
+        styles.save()
+    }
 }
 
 class AlreadyInstalledException(pkg: FFPack) : Exception("Package ${pkg.id} has already been installed.")
