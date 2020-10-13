@@ -27,12 +27,12 @@ class Chrome(val path: Path) {
         return Files.list(path).anyMatch { it.fileName == p }
     }
 
-    fun getInstalled(id: String): Path? {
+    fun getInstalled(id: String): FFPack? {
         val p = Paths.get(id)
-        return Files.list(path).asSequence().find { it.fileName == p }
+        Files.list(path).asSequence().find { it.fileName == p }?.let { return FFPack.from(it) } ?: return null
     }
 
-    fun getInstalled(pack: FFPack): Path? {
+    fun getInstalled(pack: FFPack): FFPack? {
         return getInstalled(pack.id)
     }
 
