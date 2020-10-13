@@ -17,7 +17,7 @@ class Chrome(val path: Path) {
     }
 
     val styles = ChromeStyles(this)
-    val scripts = ChromeScripts(this)
+    //val scripts = ChromeScripts(this)
 
     val installed
         get() = Files.list(path).asSequence().mapNotNull { FFPack.from(it) }
