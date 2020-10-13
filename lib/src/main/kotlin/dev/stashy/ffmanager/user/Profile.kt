@@ -9,10 +9,6 @@ import java.nio.file.Paths
 class Profile(val path: Path, val name: String) {
     val chrome = Chrome(this)
 
-    init {
-        require(!path.isAbsolute)
-    }
-
     companion object {
         val data = Paths.get(AppDirsFactory.getInstance().getUserDataDir("Firefox", null, "Mozilla", true))
         val ini: Ini by lazy { Wini(data.resolve("profiles.ini").toFile()) }
