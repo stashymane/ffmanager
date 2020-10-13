@@ -20,6 +20,8 @@ class ChromeStyles(val path: Path, val profilePath: Path = path.parent) : ArrayL
         load()
     }
 
+    //TODO: implement overrides so that ffpacks stay the same after reloading
+
     fun load() {
         clear()
         addAll(Files.lines(path)
@@ -36,7 +38,7 @@ class ChromeStyles(val path: Path, val profilePath: Path = path.parent) : ArrayL
     fun save() {
         Files.write(
             path,
-            this.map { it.id }.map { "$it/userChrome.css" }.toList(),
+            this.map { it.id }.map { "@import url(\"$it/userChrome.css\");" }.toList(),
             StandardOpenOption.TRUNCATE_EXISTING
         )
     }
